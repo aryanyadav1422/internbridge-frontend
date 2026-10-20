@@ -1,0 +1,1 @@
+export const server = ""; // Uses same-origin relative requests

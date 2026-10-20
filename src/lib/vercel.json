@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/auth/:path*",
+      "destination": "https://internbridge-backend-6htg.onrender.com/auth/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://internbridge-backend-6htg.onrender.com/api/:path*"
+    },
+    {
+      "source": "/upload/:path*",
+      "destination": "https://internbridge-backend-6htg.onrender.com/upload/:path*"
+    },
+    {
+      "source": "/host/:path*",
+      "destination": "https://internbridge-backend-6htg.onrender.com/host/:path*"
+    }
+  ]
+}
