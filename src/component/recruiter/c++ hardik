@@ -1,0 +1,39 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student {
+private:
+    long long sapId; // Private data member
+    float cgpa;      // Private data member
+
+public:
+    string studentName; // Public data member
+
+    // Member function to assign values
+    void setData(long long id, string name, float gpa) {
+        sapId = id;
+        studentName = name;
+        cgpa = gpa;
+    }
+
+    // Member function to display student details
+    void display() {
+        cout << "SAP ID: " << sapId << endl;
+        cout << "Student Name: " << studentName << endl;
+        cout << "CGPA: " << cgpa << endl;
+    }
+};
+
+int main() {
+    Student s;
+
+    // Using public member functions to set and view data
+    s.setData(500109001, "Aarav Sharma", 8.92);
+    s.display();
+
+    // Direct access to public member
+    cout << "\nDirect access to public member studentName: " << s.studentName << endl;
+
+    return 0;
+}
