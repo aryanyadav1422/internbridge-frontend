@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Button,
   Chip,
@@ -7,7 +7,6 @@ import {
   Paper,
   TextField,
   Typography,
-  Modal,
   Box,
   Avatar,
   CircularProgress,
@@ -21,7 +20,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import FlashOnIcon from "@material-ui/icons/FlashOn";
 import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
 
-import { SetPopupContext } from "../App";
+import { server } from "../lib/apiList";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -161,15 +160,6 @@ const useStyles = makeStyles(() => ({
       boxShadow: "0 6px 18px rgba(37, 99, 235, 0.35)",
     },
   },
-  modalBox: {
-    padding: "36px",
-    outline: "none",
-    width: "90%",
-    maxWidth: "540px",
-    borderRadius: "24px",
-    backgroundColor: "#ffffff",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-  },
   emptyStateBox: {
     padding: "60px 20px",
     textAlign: "center",
@@ -179,126 +169,8 @@ const useStyles = makeStyles(() => ({
     marginTop: "20px",
   },
 }));
-
-const CURATED_INTERNSHIPS = [
-  {
-    _id: "curated_1",
-    title: "Strategy & Management Consulting Intern",
-    company: "KPMG Advisory India",
-    domainCategory: "management",
-    location: "Gurugram / Hybrid",
-    salary: 45000,
-    duration: 3,
-    jobType: "Internship",
-    deadline: "Closing Soon",
-    skillsets: ["Management Consulting", "Market Sizing", "Financial Modeling", "Strategy"],
-    avatarColor: "#1d4ed8",
-    featured: true,
-    isExternal: false,
-  },
-  {
-    _id: "curated_2",
-    title: "AI & Machine Learning Research Intern",
-    company: "NexaTech AI Labs",
-    domainCategory: "tech",
-    location: "Bengaluru / Remote",
-    salary: 40000,
-    duration: 6,
-    jobType: "Internship",
-    deadline: "Active Opportunity",
-    skillsets: ["Python", "NLP", "Machine Learning", "React.js"],
-    avatarColor: "#0f766e",
-    featured: true,
-    isExternal: false,
-  },
-  {
-    _id: "curated_3",
-    title: "Technology Strategy & Digital Transformation Intern",
-    company: "Deloitte Consulting",
-    domainCategory: "tech_consulting",
-    location: "Delhi NCR / Hybrid",
-    salary: 50000,
-    duration: 3,
-    jobType: "Internship",
-    deadline: "Closing Soon",
-    skillsets: ["Tech Consulting", "Cloud Architecture", "Digital Transformation", "Analytics"],
-    avatarColor: "#047857",
-    featured: true,
-    isExternal: false,
-  },
-  {
-    _id: "curated_4",
-    title: "Corporate Strategy & M&A Analyst Intern",
-    company: "Apex Capital Partners",
-    domainCategory: "ma_strategy",
-    location: "Mumbai / Hybrid",
-    salary: 55000,
-    duration: 4,
-    jobType: "Internship",
-    deadline: "Active Opportunity",
-    skillsets: ["M&A", "Due Diligence", "Corporate Strategy", "Valuation"],
-    avatarColor: "#b45309",
-    featured: false,
-    isExternal: false,
-  },
-  {
-    _id: "curated_5",
-    title: "Business Analytics & Decision Science Intern",
-    company: "QuantEdge Insights",
-    domainCategory: "analytics_consulting",
-    location: "Remote / India",
-    salary: 35000,
-    duration: 3,
-    jobType: "Internship",
-    deadline: "Active Opportunity",
-    skillsets: ["Analytics", "SQL", "Python", "Business Intelligence"],
-    avatarColor: "#4338ca",
-    featured: false,
-    isExternal: false,
-  },
-  {
-    _id: "curated_6",
-    title: "Full-Stack MERN Product Engineering Intern",
-    company: "CloudScale Systems",
-    domainCategory: "tech",
-    location: "Noida / Remote",
-    salary: 32000,
-    duration: 6,
-    jobType: "Internship",
-    deadline: "Active Opportunity",
-    skillsets: ["React.js", "Node.js", "MongoDB", "JavaScript"],
-    avatarColor: "#0369a1",
-    featured: false,
-    isExternal: false,
-  },
-];
 const JobTile = ({ job }) => {
   const classes = useStyles();
-  const setPopup = useContext(SetPopupContext);
-  const [open, setOpen] = useState(false);
-  const [applicantName, setApplicantName] = useState("");
-  const [applicantEmail, setApplicantEmail] = useState("");
-  const [sop, setSop] = useState("");
-
-  const handleApply = () => {
-    if (!applicantName.trim() || !applicantEmail.trim()) {
-      setPopup({
-        open: true,
-        severity: "error",
-        message: "Please enter your name and email address.",
-      });
-      return;
-    }
-    setPopup({
-      open: true,
-      severity: "success",
-      message: `Application submitted for ${job.title}! Confirmation sent to ${applicantEmail}.`,
-    });
-    setApplicantName("");
-    setApplicantEmail("");
-    setSop("");
-    setOpen(false);
-  };
 
   const getCompanyInitials = (name) => {
     if (!name) return "IB";
@@ -328,6 +200,12 @@ const JobTile = ({ job }) => {
       : "Active Opportunity";
   };
 
+  const targetUrl =
+    job.applyUrl ||
+    `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(
+      `${job.title || ""} ${job.company || ""}`.trim()
+    )}`;
+
   return (
     <Paper className={classes.jobCard} elevation={0}>
       <Grid container spacing={2} alignItems="center">
@@ -349,24 +227,22 @@ const JobTile = ({ job }) => {
                 {job.featured && (
                   <Chip
                     icon={<FlashOnIcon style={{ color: "#f59e0b", fontSize: "0.95rem" }} />}
-                    label="Featured"
+                    label="Verified India Feed"
                     size="small"
                     style={{ backgroundColor: "#fef3c7", color: "#92400e", fontWeight: 700, height: 22 }}
                   />
                 )}
 
-                {job.isExternal && (
-                  <Chip
-                    label="Live Web Feed"
-                    size="small"
-                    style={{ backgroundColor: "#eff6ff", color: "#2563eb", fontWeight: 700, height: 22 }}
-                  />
-                )}
+                <Chip
+                  label="Live API Posting"
+                  size="small"
+                  style={{ backgroundColor: "#eff6ff", color: "#2563eb", fontWeight: 700, height: 22 }}
+                />
               </Box>
 
               <Box display="flex" alignItems="center" gap={1} mt={0.5} mb={1.5}>
                 <Typography variant="subtitle2" style={{ color: "#475569", fontWeight: 600 }}>
-                  {job.recruiter?.name || job.company || "Direct Partner"}
+                  {job.recruiter?.name || job.company || "Enterprise Partner"}
                 </Typography>
                 <CheckCircleIcon style={{ color: "#10b981", fontSize: "1rem" }} />
               </Box>
@@ -402,78 +278,18 @@ const JobTile = ({ job }) => {
             <Typography variant="caption" style={{ color: "#ef4444", fontWeight: 700, fontSize: "0.82rem" }}>
               ⏳ {formatDeadline(job.deadline)}
             </Typography>
-            {job.isExternal ? (
-              <Button
-                variant="contained"
-                className={classes.applyButtonPrimary}
-                href={job.applyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Apply on Source ↗
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                className={classes.applyButtonPrimary}
-                onClick={() => setOpen(true)}
-              >
-                Quick Apply Now
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              className={classes.applyButtonPrimary}
+              href={targetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apply on Posting ↗
+            </Button>
           </Box>
         </Grid>
       </Grid>
-
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-      >
-        <Paper className={classes.modalBox}>
-          <Typography variant="h5" style={{ fontWeight: 800, color: "#0f172a", marginBottom: "6px" }}>
-            Quick Apply
-          </Typography>
-          <Typography variant="body2" style={{ color: "#64748b", marginBottom: "20px" }}>
-            Applying for <strong>{job.title}</strong> at {job.recruiter?.name || job.company}.
-          </Typography>
-          <TextField
-            label="Full Name"
-            fullWidth
-            variant="outlined"
-            value={applicantName}
-            onChange={(e) => setApplicantName(e.target.value)}
-            style={{ marginBottom: "16px" }}
-          />
-          <TextField
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="outlined"
-            value={applicantEmail}
-            onChange={(e) => setApplicantEmail(e.target.value)}
-            style={{ marginBottom: "16px" }}
-          />
-          <TextField
-            label="Brief Note / Why are you a great fit?"
-            multiline
-            rows={3}
-            fullWidth
-            variant="outlined"
-            value={sop}
-            onChange={(e) => setSop(e.target.value)}
-            style={{ marginBottom: "24px" }}
-          />
-          <Box display="flex" justifyContent="flex-end" gap={1.5}>
-            <Button onClick={() => setOpen(false)} style={{ textTransform: "none", fontWeight: 600 }}>
-              Cancel
-            </Button>
-            <Button variant="contained" className={classes.applyButtonPrimary} onClick={handleApply}>
-              Submit Application
-            </Button>
-          </Box>
-        </Paper>
-      </Modal>
     </Paper>
   );
 };
@@ -485,18 +301,55 @@ const Home = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const getData = useCallback(() => {
+  const applyClientFilters = useCallback(
+    (list) => {
+      let filtered = [...list];
+      if (searchQuery.trim() !== "") {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (j) =>
+            j.title?.toLowerCase().includes(q) ||
+            j.company?.toLowerCase().includes(q) ||
+            j.location?.toLowerCase().includes(q) ||
+            j.skillsets?.some((s) => s.toLowerCase().includes(q))
+        );
+      }
+      return filtered;
+    },
+    [searchQuery]
+  );
+
+  const getData = useCallback(async () => {
     setLoading(true);
 
-    const remotiveReq = axios.get("https://remotive.com/api/remote-jobs?limit=20", { timeout: 7000 });
-    const arbeitnowReq = axios.get("https://www.arbeitnow.com/api/job-board-api", { timeout: 7000 });
+    try {
+      // Primary: Live multi-source aggregator on Render (Adzuna India + Remotive + Arbeitnow)
+      const backendRes = await axios.get(
+        `${server}/api/jobs/external?category=${encodeURIComponent(categoryFilter)}`,
+        { timeout: 12000 }
+      );
 
-    Promise.allSettled([remotiveReq, arbeitnowReq])
-      .then((results) => {
-        let externalJobs = [];
+      if (Array.isArray(backendRes.data) && backendRes.data.length > 0) {
+        setJobs(applyClientFilters(backendRes.data));
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn("Primary backend waking up, falling back to direct live feeds:", err.message);
+    }
 
-        if (results[0].status === "fulfilled" && Array.isArray(results[0].value.data?.jobs)) {
-          const parsedRemotive = results[0].value.data.jobs.map((job) => ({
+    // Fallback: Direct live API calls if Render cold-start takes >12s
+    try {
+      const [remotiveRes, arbeitnowRes] = await Promise.allSettled([
+        axios.get("https://remotive.com/api/remote-jobs?limit=25", { timeout: 8000 }),
+        axios.get("https://www.arbeitnow.com/api/job-board-api", { timeout: 8000 }),
+      ]);
+
+      let fallbackJobs = [];
+
+      if (remotiveRes.status === "fulfilled" && Array.isArray(remotiveRes.value.data?.jobs)) {
+        fallbackJobs.push(
+          ...remotiveRes.value.data.jobs.map((job) => ({
             _id: `ext_rem_${job.id}`,
             title: job.title,
             company: job.company_name,
@@ -514,12 +367,13 @@ const Home = () => {
             applyUrl: job.url,
             avatarColor: "#0f766e",
             featured: false,
-          }));
-          externalJobs = [...externalJobs, ...parsedRemotive];
-        }
+          }))
+        );
+      }
 
-        if (results[1].status === "fulfilled" && Array.isArray(results[1].value.data?.data)) {
-          const parsedArbeit = results[1].value.data.data.slice(0, 15).map((job, idx) => ({
+      if (arbeitnowRes.status === "fulfilled" && Array.isArray(arbeitnowRes.value.data?.data)) {
+        fallbackJobs.push(
+          ...arbeitnowRes.value.data.data.slice(0, 20).map((job, idx) => ({
             _id: `ext_arb_${idx}`,
             title: job.title,
             company: job.company_name,
@@ -537,69 +391,30 @@ const Home = () => {
             isExternal: true,
             avatarColor: "#1d4ed8",
             featured: false,
-          }));
-          externalJobs = [...externalJobs, ...parsedArbeit];
-        }
+          }))
+        );
+      }
 
-        let combined = [...CURATED_INTERNSHIPS, ...externalJobs];
+      if (categoryFilter !== "all") {
+        fallbackJobs = fallbackJobs.filter((j) => {
+          const text = `${j.title} ${(j.skillsets || []).join(" ")}`.toLowerCase();
+          if (categoryFilter === "management") return /consulting|strategy|management|advisory|analyst|business|operations|growth/i.test(text);
+          if (categoryFilter === "tech_consulting") return /tech|digital|architecture|systems|cloud|solutions|enterprise/i.test(text);
+          if (categoryFilter === "ma_strategy") return /m&a|due diligence|corporate|strategy|valuation/i.test(text);
+          if (categoryFilter === "analytics_consulting") return /analytics|data|insights|bi|sql|tableau/i.test(text);
+          if (categoryFilter === "tech") return /developer|software|data|python|engineer|ai|ml|cloud|react|node/i.test(text);
+          if (categoryFilter === "finance") return /finance|quant|investment|banking|portfolio|accounting/i.test(text);
+          if (categoryFilter === "design") return /design|ui|ux|figma|product/i.test(text);
+          if (categoryFilter === "operations") return /operations|growth|supply chain|logistics/i.test(text);
+          return true;
+        });
+      }
 
-        if (searchQuery.trim() !== "") {
-          const q = searchQuery.toLowerCase();
-          combined = combined.filter(
-            (j) =>
-              j.title?.toLowerCase().includes(q) ||
-              j.company?.toLowerCase().includes(q) ||
-              j.skillsets?.some((s) => s.toLowerCase().includes(q))
-          );
-        }
-
-        if (categoryFilter !== "all") {
-          combined = combined.filter(
-            (j) =>
-              j.domainCategory === categoryFilter ||
-              (categoryFilter === "management" &&
-                /consulting|strategy|management|advisory|analyst|business|mba|operations|growth/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "tech_consulting" &&
-                /tech consulting|digital transformation|architecture|systems|cloud/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "ma_strategy" &&
-                /m&a|due diligence|corporate strategy|valuation/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "analytics_consulting" &&
-                /analytics|decision science|insights|data|sql/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "tech" &&
-                /developer|software|data|python|engineer|ai|ml|tech|cloud|react|node/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "finance" &&
-                /finance|quant|investment|banking|portfolio/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "design" &&
-                /design|ui|ux|figma|product design/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                )) ||
-              (categoryFilter === "operations" &&
-                /operations|growth|supply chain|logistics/i.test(
-                  (j.title || "") + " " + (j.skillsets || []).join(" ")
-                ))
-          );
-        }
-
-        setJobs(combined);
-        setLoading(false);
-      })
-      .catch(() => {
-        setJobs(CURATED_INTERNSHIPS);
-        setLoading(false);
-      });
-  }, [categoryFilter, searchQuery]);
+      setJobs(applyClientFilters(fallbackJobs));
+    } finally {
+      setLoading(false);
+    }
+  }, [categoryFilter, applyClientFilters]);
 
   useEffect(() => {
     getData();
@@ -624,13 +439,13 @@ const Home = () => {
           Intern<span style={{ color: "#10b981" }}>Bridge</span>
         </Typography>
         <Typography variant="body1" className={classes.heroTagline}>
-          The curated early-career platform connecting ambitious talent with top-tier internships in Technology, Consulting, and Strategy.
+          Real-time internship & early-career aggregator pulling live openings directly from Adzuna India, Remotive, and Arbeitnow.
         </Typography>
 
         <Box className={classes.searchWrapper}>
           <SearchIcon style={{ color: "#64748b", marginRight: "12px", fontSize: "1.4rem" }} />
           <TextField
-            placeholder="Search roles, companies, or skills (e.g. Python, Consulting, ML)..."
+            placeholder="Search roles, companies, locations, or skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && getData()}
@@ -660,10 +475,10 @@ const Home = () => {
         <Grid item xs={11} md={8}>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2.5}>
             <Typography variant="h6" style={{ fontWeight: 800, color: "#0f172a", fontSize: "1.1rem" }}>
-              Active Opportunities ({jobs.length})
+              Live API Opportunities ({jobs.length})
             </Typography>
             <Typography variant="body2" style={{ color: "#64748b", fontWeight: 500 }}>
-              Live & Verified Listings
+              Direct Source Links Enabled
             </Typography>
           </Box>
 
