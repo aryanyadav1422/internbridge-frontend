@@ -1,14 +1,9 @@
 import { createContext, useState } from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import { Grid, makeStyles } from "@material-ui/core";
 
-import Welcome, { ErrorPage } from "./component/Welcome";
 import Navbar from "./component/Navbar";
-import Login from "./component/Login";
-import Logout from "./component/Logout";
 import Home from "./component/Home";
-import Applications from "./component/Applications";
-import Profile from "./component/Profile";
 import MessagePopup from "./lib/MessagePopup";
 
 const useStyles = makeStyles((theme) => ({
@@ -44,25 +39,13 @@ function App() {
           <Grid item className={classes.body}>
             <Switch>
               <Route exact path="/">
-                <Welcome />
-              </Route>
-              <Route exact path="/login">
-                <Login />
-              </Route>
-              <Route exact path="/logout">
-                <Logout />
+                <Home />
               </Route>
               <Route exact path="/home">
                 <Home />
               </Route>
-              <Route exact path="/applications">
-                <Applications />
-              </Route>
-              <Route exact path="/profile">
-                <Profile />
-              </Route>
               <Route>
-                <ErrorPage />
+                <Redirect to="/" />
               </Route>
             </Switch>
           </Grid>
