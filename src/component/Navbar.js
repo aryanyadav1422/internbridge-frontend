@@ -7,8 +7,6 @@ import {
 } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 
-import isAuth, { userType } from "../lib/isAuth";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -26,7 +24,6 @@ const Navbar = (props) => {
   let history = useHistory();
 
   const handleClick = (location) => {
-    console.log(location);
     history.push(location);
   };
 
@@ -41,57 +38,9 @@ const Navbar = (props) => {
         >
           Intern<span style={{ color: "#4caf50" }}>Bridge</span>
         </Typography>
-        {isAuth() ? (
-          userType() === "recruiter" ? (
-            <>
-              <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/addjob")}>
-                Add Jobs
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/myjobs")}>
-                My Jobs
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/employees")}>
-                Employees
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button color="inherit" onClick={() => handleClick("/home")}>
-                Home
-              </Button>
-              <Button
-                color="inherit"
-                onClick={() => handleClick("/applications")}
-              >
-                Applications
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/profile")}>
-                Profile
-              </Button>
-              <Button color="inherit" onClick={() => handleClick("/logout")}>
-                Logout
-              </Button>
-            </>
-          )
-        ) : (
-          <>
-            <Button color="inherit" onClick={() => handleClick("/login")}>
-              Login
-            </Button>
-            <Button color="inherit" onClick={() => handleClick("/signup")}>
-              Signup
-            </Button>
-          </>
-        )}
+        <Button color="inherit" onClick={() => handleClick("/")}>
+          Explore Internships
+        </Button>
       </Toolbar>
     </AppBar>
   );
